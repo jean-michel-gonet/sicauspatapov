@@ -4,44 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.sicaus.patapov.ui.screens.SiCausMainScreen
 import com.sicaus.patapov.ui.theme.SiCausPataPOVTheme
 
 class MainActivity : ComponentActivity() {
+    lateinit var siCausContainer: SiCausContainer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        siCausContainer = (application as SiCausApplication).container
+
         enableEdgeToEdge()
         setContent {
             SiCausPataPOVTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                SiCausMainScreen()
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    override fun onStart() {
+        super.onStart()
+        siCausContainer.onStart(this)
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SiCausPataPOVTheme {
-        Greeting("Android")
+    override fun onStop() {
+        super.onStop()
+        siCausContainer.onStop(this)
     }
 }

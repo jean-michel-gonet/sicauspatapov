@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Automata
+class AutomataImpl
+Automata <|-- AutomataImpl
+
+interface Camera
+interface GPS
+interface Accelerometer
+interface Orders
+interface Compass
+
+class DataReporterImpl
+
+interface ComputerVision
+class ComputerVisionImpl
+ComputerVisionImpl -|> ComputerVision
+Camera --o ComputerVisionImpl: < subscribes
+VideoReporterImpl o-- Camera: > subscribes
+
+interface VideoReporter
+class VideoReporterImpl
+VideoReporter <|-- VideoReporterImpl
+
+interface EventBus
+class EventBusImpl
+EventBus <|-- EventBusImpl
+
+AutomataImpl o-- EventBus: > subscribes
+DataReporterImpl o-- EventBus: > subscribes
+ComputerVision -o EventBusImpl: < subscribes
+EventBusImpl o-- Accelerometer: > subscribes
+EventBusImpl o-- GPS: > subscribes
+EventBusImpl o-- Compass: > subscribes
+EventBusImpl o-- Orders: > subscribes
+
+SiCausViewModel o-- Camera: > subscribes
+SiCausViewModel o-- EventBus: > subscribes
+
+class MainScreen <<Composable>>
+MainScreen o-- SiCausViewModel : > receives
+CameraCard --* MainScreen
+EventsCard --* MainScreen
+
+@enduml
