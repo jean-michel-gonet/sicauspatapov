@@ -47,19 +47,25 @@ enum class ServiceState {
      */
     STOPPING;
 
+    /**
+     * Indicates that the camera is not running right now, although it could start.
+     */
     fun canStart(): Boolean {
         return when(this) {
-            STOPPED -> false
+            STOPPED -> true
             REQUESTING_PERMISSION -> false
             PERMISSION_GRANTED -> true
             PERMISSION_NOT_GRANTED -> false
-            STARTING_UP -> true
+            STARTING_UP -> false
             ERROR -> false
-            RUNNING -> true
-            STOPPING -> true
+            RUNNING -> false
+            STOPPING -> false
         }
     }
 
+    /**
+     * Indicates that the camera is running or about to run.
+     */
     fun isRunning(): Boolean {
         return when(this) {
             STOPPED -> false

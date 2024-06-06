@@ -2,11 +2,14 @@ package com.sicaus.patapov.services
 
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.sicaus.patapov.utils.RequiredPermission
+import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -40,7 +43,9 @@ class PermissionProviderImpl : PermissionProvider {
         showRationale(presentActivity, permissions)
 
         // And now request permissions
-        return requestPermissions(presentActivity, permissions)
+        val result = requestPermissions(presentActivity, permissions)
+        Log.i(this.javaClass.simpleName, "Permission granted: $result")
+        return result
     }
 
     private fun checkIfPermissionsGranted(presentActivity: Activity, permissions: Collection<RequiredPermission>): Boolean {
@@ -58,23 +63,26 @@ class PermissionProviderImpl : PermissionProvider {
     }
 
     private suspend fun requestPermissions(activity: Activity, requiredPermissions: Collection<RequiredPermission>): Boolean {
-        // Only some types of activities can request for permissions:
-        if (activity !is ActivityResultCaller) {
+        if (activity !is ActivityResultRegistryOwner) {
             return false
         }
-        val activityResultCaller = activity as ActivityResultCaller
+        val activityResultRegistryOwner = activity.activityResultRegistry
+        val key = UUID.randomUUID().toString()
 
         // We'll wait until the activity result comes back:
-        return suspendCoroutine {
+        var launcher: ActivityResultLauncher<Array<String>>
+        val result = suspendCoroutine {
             continuation ->
-            val launcher = activityResultCaller.registerForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) {
+            launcher = activityResultRegistryOwner.register(key = key, contract = ActivityResultContracts.RequestMultiplePermissions()) {
                 checkedPermissions ->
                 val permissionsGranted = acknowledgePermissionRequestOutcome(activity, requiredPermissions, checkedPermissions)
                 continuation.resume(permissionsGranted)
             }
-
             launcher.launch(requiredPermissions.map { it.permission }.toTypedArray())
         }
+        launcher.unregister()
+        Log.i(this.javaClass.simpleName, "Request permissions result: $result")
+        return result
     }
 
     private fun acknowledgePermissionRequestOutcome(activity: Activity, requiredPermissions: Collection<RequiredPermission>, checkedPermissions: Map<String, Boolean>): Boolean {

@@ -31,29 +31,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
+import com.sicaus.patapov.ui.ServiceState
 import com.sicaus.patapov.ui.SiCausViewModel
 
 @Composable
-fun SiCausMainScreen(modifier: Modifier = Modifier, viewModel: SiCausViewModel = viewModel(factory = SiCausViewModel.Factory)) {
-    val uiState by viewModel.uiState.collectAsState()
-    if (uiState.cameraState.canStart()) {
-
-    } else {
-
-    }
-}
-
-@Preview
-@Composable
-fun XxPreview() {
-    Xx(modifier = Modifier.fillMaxSize())
+fun SiCausMainScreen(modifier: Modifier = Modifier) {
+    Xx(modifier = modifier.fillMaxSize())
 }
 
 @Composable
 fun Xx(modifier: Modifier =  Modifier) {
     Scaffold(topBar = { TopBar() }) {
         innerPadding ->
-        CameraCard(modifier = Modifier
+        Camera2AndButtons(modifier = modifier
             .padding(innerPadding)
             .fillMaxSize())
     }
@@ -61,7 +51,7 @@ fun Xx(modifier: Modifier =  Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(modifier: Modifier = Modifier) {
+fun TopBar() {
     TopAppBar(
         title = {
             Text(stringResource(R.string.application_name))
@@ -81,57 +71,42 @@ fun TopBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CameraCard(modifier: Modifier = Modifier) {
+fun Camera2AndButtons(modifier: Modifier = Modifier, viewModel: SiCausViewModel = viewModel(factory = SiCausViewModel.Factory)) {
+    val uiState by viewModel.uiState.collectAsState()
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally) {
-        WaitingCamera2(modifier = Modifier
-            .weight(1.0f)
-            .fillMaxWidth())
-        BottomButtons(modifier = Modifier
-            .height(60.dp)
-            .fillMaxWidth())
+        Camera2Viewer(
+            cameraState = uiState.cameraState,
+            modifier = Modifier
+                .weight(1.0f)
+                .fillMaxWidth())
+        BottomButtons(
+            cameraState = uiState.cameraState,
+            modifier = Modifier
+                .height(60.dp)
+                .fillMaxWidth())
     }
 }
 
 @Composable
-fun BottomButtons(modifier: Modifier = Modifier) {
-    Row(modifier = modifier
-        .padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween) {
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Start Camera")
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Broadcast")
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Stop")
-        }
+fun Camera2Viewer(cameraState: ServiceState, modifier: Modifier = Modifier) {
+    if (cameraState.canStart()) {
+        WaitingCamera(modifier)
+    } else {
+        NoCamera(modifier)
     }
 }
 
-@Preview
 @Composable
-fun Waiting2Preview() {
-    WaitingCamera2()
-}
-
-@Preview
-@Composable
-fun NoCamera2Preview() {
-    NoCamera2()
-}
-
-@Composable
-fun WaitingCamera2(modifier: Modifier = Modifier) {
+fun WaitingCamera(modifier: Modifier = Modifier) {
     Image(
         modifier = modifier,
         painter = painterResource(id = R.drawable.ic_camera),
         contentDescription = "Camera")
 }
 @Composable
-fun NoCamera2(modifier: Modifier = Modifier) {
+fun NoCamera(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = R.drawable.ic_camera),
@@ -140,4 +115,40 @@ fun NoCamera2(modifier: Modifier = Modifier) {
             painter = painterResource(id = R.drawable.ic_forbidden),
             contentDescription = "Forbidden")
     }
+}
+
+@Composable
+fun BottomButtons(cameraState: ServiceState, modifier: Modifier = Modifier) {
+    Row(modifier = modifier
+        .padding(horizontal = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween) {
+        Button(
+            onClick = { /*TODO*/ },
+            enabled = cameraState.canStart()) {
+            Text(text = stringResource(R.string.button_start_camera))
+        }
+        Button(
+            onClick = { /*TODO*/ },
+            enabled = cameraState.isRunning()) {
+            Text(text = stringResource(id = R.string.button_start_broadcast))
+        }
+        Button(
+            onClick = { /*TODO*/ },
+            enabled = cameraState == ServiceState.RUNNING
+            ) {
+            Text(text = stringResource(R.string.button_stop_camera))
+        }
+    }
+}
+
+@Preview
+@Composable
+fun Waiting2Preview() {
+    WaitingCamera()
+}
+
+@Preview
+@Composable
+fun NoCamera2Preview() {
+    NoCamera()
 }
