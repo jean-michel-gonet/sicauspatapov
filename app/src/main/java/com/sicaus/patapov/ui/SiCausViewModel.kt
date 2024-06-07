@@ -1,9 +1,6 @@
 package com.sicaus.patapov.ui
 
 import android.view.Surface
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -19,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class SiCausViewModel(
+open class SiCausViewModel(
     private val camera: Camera,
     private val permissionProvider: PermissionProvider): ViewModel() {
     companion object {
@@ -38,13 +35,14 @@ class SiCausViewModel(
     )
 
     private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    open val uiState get() = _uiState.asStateFlow()
 
     init {
         requestPermissionForCamera()
     }
 
-    private fun requestPermissionForCamera() {
+    protected open fun requestPermissionForCamera() {
         _uiState.update {
             it.copy(cameraState = ServiceState.REQUESTING_PERMISSION)
         }
@@ -61,8 +59,8 @@ class SiCausViewModel(
         }
     }
 
-    fun startCamera(surface: Surface) {
-        if (uiState.value.cameraState == ServiceState.PERMISSION_GRANTED) {
+    open fun startCamera(surface: Surface) {
+        if (_uiState.value.cameraState == ServiceState.PERMISSION_GRANTED) {
             _uiState.update {
                 it.copy(cameraState = ServiceState.STARTING_UP)
             }
@@ -83,7 +81,7 @@ class SiCausViewModel(
         }
     }
 
-    fun stopCamera() {
+    open fun stopCamera() {
         if (_uiState.value.cameraState == ServiceState.RUNNING) {
             _uiState.update {
                 it.copy(cameraState = ServiceState.STOPPING)

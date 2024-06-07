@@ -1,6 +1,7 @@
 package com.sicaus.patapov.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
 import com.sicaus.patapov.ui.ServiceState
 import com.sicaus.patapov.ui.SiCausViewModel
+import com.sicaus.patapov.ui.SiCausViewModelPreview
+import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
 fun SiCausMainScreen(modifier: Modifier = Modifier) {
@@ -40,7 +43,7 @@ fun SiCausMainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Xx(modifier: Modifier =  Modifier) {
+fun Xx(modifier: Modifier = Modifier) {
     Scaffold(topBar = { TopBar() }) {
         innerPadding ->
         Camera2AndButtons(modifier = modifier
@@ -68,6 +71,29 @@ fun TopBar() {
             containerColor = MaterialTheme.colorScheme.inversePrimary
         )
     )
+}
+
+@Preview
+@Composable
+fun Camera2AndButtonsPreview() {
+    Camera2AndButtons(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(primaryContainerLight),
+        viewModel = SiCausViewModelPreview(
+            SiCausViewModel.UiState(
+                cameraState = ServiceState.STOPPED)))
+}
+@Preview
+@Composable
+fun NoCamera2AndButtonsPreview() {
+    Camera2AndButtons(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(primaryContainerLight),
+        viewModel = SiCausViewModelPreview(
+            SiCausViewModel.UiState(
+                cameraState = ServiceState.PERMISSION_NOT_GRANTED)))
 }
 
 @Composable
@@ -109,9 +135,11 @@ fun WaitingCamera(modifier: Modifier = Modifier) {
 fun NoCamera(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         Image(
+            modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = R.drawable.ic_camera),
             contentDescription = "Camera")
         Image(
+            modifier = Modifier.fillMaxSize(),
             painter = painterResource(id = R.drawable.ic_forbidden),
             contentDescription = "Forbidden")
     }
