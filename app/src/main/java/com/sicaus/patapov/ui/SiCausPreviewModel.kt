@@ -7,14 +7,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SiCausViewModelPreview(private val _uiState: UiState): SiCausViewModel(
+class SiCausPreviewModel(private val _uiState: UiState): SiCausViewModel(
     camera = mockk<Camera>(),
     permissionProvider = mockk<PermissionProvider>()) {
 
     override val uiState get() = MutableStateFlow(_uiState).asStateFlow()
-
-    //private val _uiState = MutableStateFlow(UiState())
-    //val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     override fun requestPermissionForCamera() {
         // do nothing

@@ -1,5 +1,6 @@
 package com.sicaus.patapov.ui.screens
 
+import android.view.Surface
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,18 +35,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
 import com.sicaus.patapov.ui.ServiceState
 import com.sicaus.patapov.ui.SiCausViewModel
-import com.sicaus.patapov.ui.SiCausViewModelPreview
+import com.sicaus.patapov.ui.SiCausPreviewModel
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
 fun SiCausMainScreen(modifier: Modifier = Modifier) {
-    Xx(modifier = modifier.fillMaxSize())
-}
-
-@Composable
-fun Xx(modifier: Modifier = Modifier) {
     Scaffold(topBar = { TopBar() }) {
-        innerPadding ->
+            innerPadding ->
         Camera2AndButtons(modifier = modifier
             .padding(innerPadding)
             .fillMaxSize())
@@ -73,31 +69,10 @@ fun TopBar() {
     )
 }
 
-@Preview
 @Composable
-fun Camera2AndButtonsPreview() {
-    Camera2AndButtons(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(primaryContainerLight),
-        viewModel = SiCausViewModelPreview(
-            SiCausViewModel.UiState(
-                cameraState = ServiceState.STOPPED)))
-}
-@Preview
-@Composable
-fun NoCamera2AndButtonsPreview() {
-    Camera2AndButtons(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(primaryContainerLight),
-        viewModel = SiCausViewModelPreview(
-            SiCausViewModel.UiState(
-                cameraState = ServiceState.PERMISSION_NOT_GRANTED)))
-}
-
-@Composable
-fun Camera2AndButtons(modifier: Modifier = Modifier, viewModel: SiCausViewModel = viewModel(factory = SiCausViewModel.Factory)) {
+fun Camera2AndButtons(
+    modifier: Modifier = Modifier,
+    viewModel: SiCausViewModel = viewModel(factory = SiCausViewModel.Factory)) {
     val uiState by viewModel.uiState.collectAsState()
     Column(
         modifier = modifier,
@@ -171,12 +146,23 @@ fun BottomButtons(cameraState: ServiceState, modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun Waiting2Preview() {
-    WaitingCamera()
+fun Camera2AndButtonsPreview() {
+    Camera2AndButtons(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(primaryContainerLight),
+        viewModel = SiCausPreviewModel(
+            SiCausViewModel.UiState(
+                cameraState = ServiceState.STOPPED)))
 }
-
 @Preview
 @Composable
-fun NoCamera2Preview() {
-    NoCamera()
+fun NoCamera2AndButtonsPreview() {
+    Camera2AndButtons(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(primaryContainerLight),
+        viewModel = SiCausPreviewModel(
+            SiCausViewModel.UiState(
+                cameraState = ServiceState.PERMISSION_NOT_GRANTED)))
 }

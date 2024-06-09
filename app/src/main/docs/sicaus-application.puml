@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/class-diagram
+allowmixing
+
+file AndroidManifest
+class Theme
+class SiCausApplication
+class SiCausContainer
+class SiCausViewModel {
+    {static} Factory: SiCausViewModel
+    uiState: StateFlow<UiState>
+    userAction1(): Unit
+    userAction2(param): Unit
+}
+class MainActivity
+class SiCausMainScreen <<Composable>>
+
+AndroidManifest --> Theme
+AndroidManifest --> SiCausApplication
+AndroidManifest --> MainActivity
+
+SiCausApplication -o MainActivity
+MainActivity o- Theme
+
+SiCausApplication *-- SiCausContainer: > holds
+MainActivity --> SiCausMainScreen: > calls
+MainActivity --> SiCausContainer: > calls
+
+SiCausMainScreen o-- SiCausViewModel: > spawns
+
+SiCausApplication <-- SiCausViewModel: < access
+SiCausContainer <-- SiCausViewModel: < calls
+SiCausContainer *-- Service1: > creates
+SiCausContainer *-- Service2: > creates
+
+Service2 -o Service1: < receives
+Service1 -o SiCausViewModel: < obtains
+
+@enduml

@@ -19,12 +19,16 @@ import kotlinx.coroutines.launch
 open class SiCausViewModel(
     private val camera: Camera,
     private val permissionProvider: PermissionProvider): ViewModel() {
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as SiCausApplication
+                val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                        as SiCausApplication
                 val container = application.container
-                SiCausViewModel(camera = container.camera(), permissionProvider = container.permissionProvider())
+                SiCausViewModel(
+                    camera = container.camera(),
+                    permissionProvider = container.permissionProvider())
             }
         }
     }
