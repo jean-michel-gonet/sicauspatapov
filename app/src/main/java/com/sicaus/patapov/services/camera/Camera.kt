@@ -1,9 +1,9 @@
-package com.sicaus.patapov.services
+package com.sicaus.patapov.services.camera
 
 import android.app.Activity
 import android.view.Surface
-import androidx.lifecycle.LifecycleOwner
-import com.sicaus.patapov.utils.RequiredPermission
+import com.sicaus.patapov.services.activity.ActivityBound
+import com.sicaus.patapov.services.permissions.RequiringPermissions
 
 /**
  * A simplified access to the camera.

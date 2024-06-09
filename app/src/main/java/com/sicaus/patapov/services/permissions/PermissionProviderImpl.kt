@@ -1,4 +1,4 @@
-package com.sicaus.patapov.services
+package com.sicaus.patapov.services.permissions
 
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -8,7 +8,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.sicaus.patapov.utils.RequiredPermission
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine

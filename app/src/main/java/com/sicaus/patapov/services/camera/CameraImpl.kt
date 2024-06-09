@@ -1,5 +1,6 @@
-package com.sicaus.patapov.services
+package com.sicaus.patapov.services.camera
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
@@ -12,11 +13,7 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import com.sicaus.patapov.services.exceptions.CannotConfigureCameraCaptureSession
-import com.sicaus.patapov.services.exceptions.CannotOpenCameraDisconnectedException
-import com.sicaus.patapov.services.exceptions.CannotOpenCameraErrorException
-import com.sicaus.patapov.services.exceptions.CannotOpenCameraSecurityException
-import com.sicaus.patapov.utils.RequiredPermission
+import com.sicaus.patapov.services.permissions.RequiredPermission
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -31,16 +28,18 @@ class CameraImpl: Camera {
         private val REQUIRED_PERMISSIONS_FOR_CAMERA =
             mutableListOf (
                 RequiredPermission(
-                    android.Manifest.permission.CAMERA,
+                    Manifest.permission.CAMERA,
                     "Camera allows to see from the Point Of View of your vehicle - without it, this application is useless"),
                 RequiredPermission(
-                    android.Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.RECORD_AUDIO,
                     "Recording audio allows to hear what's happening around your vehicle.")
             ).apply {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    add(RequiredPermission(
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        "Writing to external storage enables taking snapshots."))
+                    add(
+                        RequiredPermission(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        "Writing to external storage enables taking snapshots.")
+                    )
                 }
             }
     }

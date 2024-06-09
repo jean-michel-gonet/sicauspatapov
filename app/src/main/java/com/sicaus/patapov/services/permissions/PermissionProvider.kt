@@ -1,4 +1,6 @@
-package com.sicaus.patapov.services
+package com.sicaus.patapov.services.permissions
+
+import com.sicaus.patapov.services.activity.ActivityBound
 
 /**
  * Provides permission to all services requiring it.

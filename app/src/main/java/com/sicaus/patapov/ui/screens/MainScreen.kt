@@ -1,6 +1,5 @@
 package com.sicaus.patapov.ui.screens
 
-import android.view.Surface
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
-import com.sicaus.patapov.ui.ServiceState
+import com.sicaus.patapov.services.activity.ServiceState
 import com.sicaus.patapov.ui.SiCausViewModel
 import com.sicaus.patapov.ui.SiCausPreviewModel
 import com.sicaus.patapov.ui.theme.primaryContainerLight

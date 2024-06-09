@@ -1,11 +1,11 @@
 package com.sicaus.patapov
 
 import android.app.Activity
-import com.sicaus.patapov.services.Camera
-import com.sicaus.patapov.services.CameraImpl
-import com.sicaus.patapov.services.ActivityBound
-import com.sicaus.patapov.services.PermissionProvider
-import com.sicaus.patapov.services.PermissionProviderImpl
+import com.sicaus.patapov.services.camera.Camera
+import com.sicaus.patapov.services.camera.CameraImpl
+import com.sicaus.patapov.services.activity.ActivityBound
+import com.sicaus.patapov.services.permissions.PermissionProvider
+import com.sicaus.patapov.services.permissions.PermissionProviderImpl
 
 /**
  * Container provides IoD access to services and data providers

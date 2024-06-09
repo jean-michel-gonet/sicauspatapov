@@ -1,4 +1,4 @@
-package com.sicaus.patapov.ui
+package com.sicaus.patapov.services.activity
 
 /**
  * Describes the possible states of a service.

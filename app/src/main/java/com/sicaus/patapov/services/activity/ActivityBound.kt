@@ -1,4 +1,4 @@
-package com.sicaus.patapov.services
+package com.sicaus.patapov.services.activity
 
 import android.app.Activity
 

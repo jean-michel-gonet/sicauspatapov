@@ -1,8 +1,8 @@
 package com.sicaus.patapov.ui
 
 import android.view.Surface
-import com.sicaus.patapov.services.Camera
-import com.sicaus.patapov.services.PermissionProvider
+import com.sicaus.patapov.services.camera.Camera
+import com.sicaus.patapov.services.permissions.PermissionProvider
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -7,18 +7,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sicaus.patapov.SiCausApplication
-import com.sicaus.patapov.services.Camera
-import com.sicaus.patapov.services.PermissionProvider
-import com.sicaus.patapov.services.exceptions.CameraException
+import com.sicaus.patapov.services.activity.ServiceState
+import com.sicaus.patapov.services.camera.Camera
+import com.sicaus.patapov.services.permissions.PermissionProvider
+import com.sicaus.patapov.services.camera.CameraException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 open class SiCausViewModel(
     private val camera: Camera,
-    private val permissionProvider: PermissionProvider): ViewModel() {
+    private val permissionProvider: PermissionProvider
+): ViewModel() {
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

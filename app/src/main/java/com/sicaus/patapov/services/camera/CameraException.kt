@@ -1,7 +1,6 @@
-package com.sicaus.patapov.services.exceptions
+package com.sicaus.patapov.services.camera
 
 import android.hardware.camera2.CameraDevice
-import androidx.core.app.NotificationCompat.MessagingStyle.Message
 
 /**
  * A family of runtime exceptions for camera.

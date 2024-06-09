@@ -1,6 +1,4 @@
-package com.sicaus.patapov.services
-
-import com.sicaus.patapov.utils.RequiredPermission
+package com.sicaus.patapov.services.permissions
 
 /**
  * An interface to be implemented by any service requiring permissions.
