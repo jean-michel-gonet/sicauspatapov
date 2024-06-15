@@ -1,4 +1,4 @@
-package com.sicaus.patapov.services.activity
+package com.sicaus.patapov.ui.screens.cameracontrol
 
 /**
  * Describes the possible states of a service.

@@ -1,4 +1,4 @@
-package com.sicaus.patapov.ui
+package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.view.Surface
 import com.sicaus.patapov.services.camera.Camera
@@ -7,7 +7,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SiCausPreviewModel(private val _uiState: UiState): SiCausViewModel(
+class CameraControlPreviewModel(private val _uiState: UiState): CameraControlViewModel(
     camera = mockk<Camera>(),
     permissionProvider = mockk<PermissionProvider>()) {
 

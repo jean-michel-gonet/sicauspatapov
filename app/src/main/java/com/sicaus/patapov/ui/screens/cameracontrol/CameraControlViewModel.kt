@@ -1,4 +1,4 @@
-package com.sicaus.patapov.ui
+package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.view.Surface
 import androidx.lifecycle.ViewModel
@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sicaus.patapov.SiCausApplication
-import com.sicaus.patapov.services.activity.ServiceState
 import com.sicaus.patapov.services.camera.Camera
 import com.sicaus.patapov.services.permissions.PermissionProvider
 import com.sicaus.patapov.services.camera.CameraException
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-open class SiCausViewModel(
+open class CameraControlViewModel(
     private val camera: Camera,
     private val permissionProvider: PermissionProvider
 ): ViewModel() {
@@ -27,7 +26,7 @@ open class SiCausViewModel(
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
                         as SiCausApplication
                 val container = application.container
-                SiCausViewModel(
+                CameraControlViewModel(
                     camera = container.camera(),
                     permissionProvider = container.permissionProvider())
             }
