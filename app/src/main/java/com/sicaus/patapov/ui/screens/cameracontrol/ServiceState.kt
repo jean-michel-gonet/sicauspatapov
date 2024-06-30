@@ -53,7 +53,7 @@ enum class ServiceState {
     fun canStart(): Boolean {
         return when(this) {
             STOPPED -> true
-            REQUESTING_PERMISSION -> false
+            REQUESTING_PERMISSION -> true
             PERMISSION_GRANTED -> true
             PERMISSION_NOT_GRANTED -> false
             STARTING_UP -> false
@@ -75,7 +75,7 @@ enum class ServiceState {
             STARTING_UP -> true
             ERROR -> false
             RUNNING -> true
-            STOPPING -> true
+            STOPPING -> false
         }
     }
 }

@@ -3,14 +3,31 @@ package com.sicaus.patapov.services.camera
 import android.hardware.camera2.CameraDevice
 
 /**
- * A family of runtime exceptions for camera.
+ * Common ancestor for the family of runtime exceptions for camera.
  */
 open class CameraException: RuntimeException {
     protected constructor(m: String): super(m)
     protected constructor(m: String, t: Throwable): super(m, t)
 }
 
-open class CannotOpenCameraException: CameraException {
+/**
+ * Common ancestor for camera exceptions that are caused by the user, or the calling client.
+ */
+open class CameraUserException(val summary: String, m: String): CameraException(m)
+
+/**
+ * Common ancestor for camera exceptions that are caused by the service.
+ */
+open class CameraServiceException: CameraException  {
+    protected constructor(m: String): super(m)
+    protected constructor(m: String, t: Throwable): super(m, t)
+}
+open class NoMatchingCameraException(cameraSelectionCriteria: CameraSelectionCriteria) :
+    CameraUserException("Cannot find a camera", cameraSelectionCriteria.toString())
+
+open class NoCameraSelectedException: CameraUserException("No Camera Selected", "Select a camera before executing this operation")
+
+open class CannotOpenCameraException: CameraServiceException {
     protected constructor(m: String): super(m)
     protected constructor(m: String, t: Throwable): super(m, t)
 }

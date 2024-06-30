@@ -10,6 +10,8 @@ import com.sicaus.patapov.SiCausApplication
 import com.sicaus.patapov.services.camera.Camera
 import com.sicaus.patapov.services.permissions.PermissionProvider
 import com.sicaus.patapov.services.camera.CameraException
+import com.sicaus.patapov.services.camera.CameraSelectionCriteria
+import com.sicaus.patapov.services.camera.SelectedCameraDescription
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,6 +37,7 @@ open class CameraControlViewModel(
 
     data class UiState (
         val cameraState: ServiceState = ServiceState.STOPPED,
+        val selectedCamera: SelectedCameraDescription? = null,
         val exception: CameraException? = null
     )
 
@@ -63,11 +66,33 @@ open class CameraControlViewModel(
         }
     }
 
-    open fun startCamera(surface: Surface) {
+    /**
+     * UI calls this method to signal that user wants to start camera.
+     * State changes to STARTING_UP, so UI can initialize whatever components are
+     * needed to have a [Surface] to provide to [activateCamera].
+     */
+    open fun startCamera() {
         if (_uiState.value.cameraState == ServiceState.PERMISSION_GRANTED) {
-            _uiState.update {
-                it.copy(cameraState = ServiceState.STARTING_UP)
+            try {
+                _uiState.update {
+                    it.copy(
+                        cameraState = ServiceState.STARTING_UP,
+                        selectedCamera = camera.selectCamera(CameraSelectionCriteria())
+                    )
+                }
+            } catch (e: CameraException) {
+                _uiState.update {
+                    it.copy(cameraState = ServiceState.ERROR, exception = e)
+                }
             }
+        }
+    }
+
+    /**
+     * UI calls this method to provide a [Surface] to subscribe to the camera.
+     */
+    open fun activateCamera(surface: Surface) {
+        if (_uiState.value.cameraState == ServiceState.STARTING_UP) {
             viewModelScope.launch {
                 try {
                     camera.subscribe(surface)

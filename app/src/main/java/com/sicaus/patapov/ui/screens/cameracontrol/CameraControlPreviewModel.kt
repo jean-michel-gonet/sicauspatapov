@@ -7,6 +7,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Extension of [CameraControlViewModel] to be used with Preview.
+ * All methods are overridden to do nothing, and state is fixed and directly
+ * provided in the constructor.
+ */
 class CameraControlPreviewModel(private val _uiState: UiState): CameraControlViewModel(
     camera = mockk<Camera>(),
     permissionProvider = mockk<PermissionProvider>()) {
@@ -17,7 +22,7 @@ class CameraControlPreviewModel(private val _uiState: UiState): CameraControlVie
         // do nothing
     }
 
-    override fun startCamera(surface: Surface) {
+    override fun activateCamera(surface: Surface) {
         // do nothing
     }
 

@@ -1,5 +1,10 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
+import android.graphics.Color
+import android.view.Surface
+import android.view.SurfaceView
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,8 +28,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
+import com.sicaus.patapov.services.camera.CameraException
+import com.sicaus.patapov.services.camera.CameraSelectionCriteria
+import com.sicaus.patapov.services.camera.CameraUserException
+import com.sicaus.patapov.services.camera.NoMatchingCameraException
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
@@ -41,11 +53,15 @@ fun Camera2AndButtons(
         horizontalAlignment = Alignment.CenterHorizontally) {
         Camera2Viewer(
             cameraState = uiState.cameraState,
+            activateCamera = viewModel::activateCamera,
             modifier = Modifier
                 .weight(1.0f)
                 .fillMaxWidth())
+        ErrorNotification(uiState.exception)
         BottomButtons(
             cameraState = uiState.cameraState,
+            startCamera = viewModel::startCamera,
+            stopCamera = viewModel::stopCamera,
             modifier = Modifier
                 .height(60.dp)
                 .fillMaxWidth())
@@ -53,9 +69,38 @@ fun Camera2AndButtons(
 }
 
 @Composable
-fun Camera2Viewer(cameraState: ServiceState, modifier: Modifier = Modifier) {
+fun ErrorNotification(exception: CameraException?) {
+    if (exception != null) {
+        val summary = when(exception) {
+            is CameraUserException -> exception.summary
+            else -> exception.javaClass.simpleName
+        }
+        Card(modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.errorContainer)
+            .fillMaxWidth()
+            .padding(10.dp)) {
+            Column {
+                Text(
+                    text = summary,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = exception.message?: "",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}
+
+@Composable
+fun Camera2Viewer(cameraState: ServiceState, activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
     if (cameraState.canStart()) {
         WaitingCamera(modifier)
+    } else if (cameraState.isRunning()) {
+        ShowCamera(
+            activateCamera = activateCamera,
+            modifier)
     } else {
         NoCamera(modifier)
     }
@@ -68,6 +113,22 @@ fun WaitingCamera(modifier: Modifier = Modifier) {
         painter = painterResource(id = R.drawable.ic_camera),
         contentDescription = "Camera")
 }
+@Composable
+fun ShowCamera(activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            SurfaceView(context).apply {
+                this.setBackgroundColor(Color.GREEN)
+                this.layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT)
+                this.post {
+                    activateCamera(this.holder.surface)
+                }
+            }})
+}
+
 @Composable
 fun NoCamera(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
@@ -83,12 +144,12 @@ fun NoCamera(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BottomButtons(cameraState: ServiceState, modifier: Modifier = Modifier) {
+fun BottomButtons(cameraState: ServiceState, startCamera: () -> Unit, stopCamera: () -> Unit, modifier: Modifier = Modifier) {
     Row(modifier = modifier
         .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween) {
         Button(
-            onClick = { /*TODO*/ },
+            onClick = startCamera,
             enabled = cameraState.canStart()) {
             Text(text = stringResource(R.string.button_start_camera))
         }
@@ -98,7 +159,7 @@ fun BottomButtons(cameraState: ServiceState, modifier: Modifier = Modifier) {
             Text(text = stringResource(id = R.string.button_start_broadcast))
         }
         Button(
-            onClick = { /*TODO*/ },
+            onClick = stopCamera,
             enabled = cameraState == ServiceState.RUNNING
         ) {
             Text(text = stringResource(R.string.button_stop_camera))
@@ -108,7 +169,7 @@ fun BottomButtons(cameraState: ServiceState, modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun Camera2AndButtonsPreview() {
+fun Camera2AndButtonsPreviewWhenStopped() {
     Camera2AndButtons(
         modifier = Modifier
             .fillMaxSize()
@@ -120,7 +181,7 @@ fun Camera2AndButtonsPreview() {
 }
 @Preview
 @Composable
-fun NoCamera2AndButtonsPreview() {
+fun NoCamera2AndButtonsPreviewWhenNoPermission() {
     Camera2AndButtons(
         modifier = Modifier
             .fillMaxSize()
@@ -128,5 +189,18 @@ fun NoCamera2AndButtonsPreview() {
         viewModel = CameraControlPreviewModel(
             CameraControlViewModel.UiState(
                 cameraState = ServiceState.PERMISSION_NOT_GRANTED))
+    )
+}
+@Preview
+@Composable
+fun NoCamera2AndButtonsPreviewWhenError() {
+    Camera2AndButtons(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(primaryContainerLight),
+        viewModel = CameraControlPreviewModel(
+            CameraControlViewModel.UiState(
+                cameraState = ServiceState.ERROR,
+                exception = NoMatchingCameraException(CameraSelectionCriteria())))
     )
 }

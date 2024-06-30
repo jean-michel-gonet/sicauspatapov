@@ -1,6 +1,5 @@
 package com.sicaus.patapov.services.camera
 
-import android.app.Activity
 import android.view.Surface
 import com.sicaus.patapov.services.activity.ActivityBound
 import com.sicaus.patapov.services.permissions.RequiringPermissions
@@ -10,18 +9,25 @@ import com.sicaus.patapov.services.permissions.RequiringPermissions
  */
 interface Camera: ActivityBound, RequiringPermissions {
     /**
-     * Subscribes a surface to the camera stream.
-     * Subscription is possible before or after starting the camera.
-     * The number of subscriptors is not limited.
+     * Chooses the camera that best fit the selection criteria.
+     * Camera description can also be obtained afterwards, by calling [describeSelectedCamera]]
+     * @param cameraSelectionCriteria Selection criteria to choose the most appropriate camera.
+     * @return Description of the selected camera.
      */
-    fun subscribe(surface: Surface)
+    fun selectCamera(cameraSelectionCriteria: CameraSelectionCriteria): SelectedCameraDescription
 
     /**
-     * Starts the camera.
-     * Before starting the camera, check for [requiredPermissions].
-     * Starting the camera requires access to the application's life cycle.
+     * Describes the currently selected camera.
+     * @return The camera description.
      */
-    suspend fun start(activity: Activity)
+    fun describeSelectedCamera(): SelectedCameraDescription
+
+    /**
+     * Subscribes a surface to the camera stream.
+     * Subscribing a surface starts or restarts the camera.
+     * The number of subscriptors is not limited.
+     */
+    suspend fun subscribe(surface: Surface)
 
     /**
      * Stops the camera.
