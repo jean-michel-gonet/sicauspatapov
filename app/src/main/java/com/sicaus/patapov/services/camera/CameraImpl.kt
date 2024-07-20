@@ -8,14 +8,12 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.sicaus.patapov.services.permissions.RequiredPermission
-import kotlinx.coroutines.sync.Mutex
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.coroutines.resume
@@ -124,7 +122,8 @@ class CameraImpl: Camera {
         this.activity = null
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun selectCamera(cameraSelectionCriteria: CameraSelectionCriteria): SelectedCameraDescription {
         try {
             lock.lock()
@@ -136,6 +135,7 @@ class CameraImpl: Camera {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun doSelectCamera(currentState: InnerState, cameraSelectionCriteria: CameraSelectionCriteria): InnerState.CameraStandby {
         if (currentState is InnerState.CameraInSession) {
             currentState.captureSession.close()
@@ -155,6 +155,14 @@ class CameraImpl: Camera {
             selectedCamera)
     }
 
+    /**
+     * Don't assume that your app always runs on a handheld device with one or two cameras.
+     * Instead, choose the most appropriate cameras for the app. If you don't need a specific camera,
+     * select the first camera that faces the desired direction. If an external camera is connected,
+     * you might assume that the user prefers it as the default.
+     * [See camera enumeration](https://developer.android.com/media/camera/camera2/camera-enumeration), by Android</a>
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun findCameraAndConfiguration(cameraSelectionCriteria: CameraSelectionCriteria): SelectedCameraDescription {
         // Use the context to require the camera manager from the system:
         // TODO: Add safeguards against activity going null at any moment
@@ -163,15 +171,6 @@ class CameraImpl: Camera {
         val cameraIdList = cameraManager.cameraIdList
         for (cameraId in cameraIdList) {
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-            // Filters out cameras without required compatibility:
-            // TODO: Is this actually important? What backward compatibility do we need?
-            val backwardCompatible = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-                ?.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
-                ?: false
-            if (!backwardCompatible) {
-                continue
-            }
 
             // Filters out cameras not facing the requested direction:
             val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)
@@ -235,26 +234,32 @@ class CameraImpl: Camera {
             currentState.device.close()
         }
 
-        val device = openCameraDevice(currentState.cameraSelectionCriteria)
+        val device = openCameraDevice(currentState.selectedCameraDescription.cameraId)
         val captureSession = createCameraCaptureSession(device, targets)
+        val captureRequestBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        targets.forEach {
+            captureRequestBuilder.addTarget(it);
+        }
+        captureSession.setSingleRepeatingRequest(
+            captureRequestBuilder.build(),
+            executor,
+            object : CameraCaptureSession.CaptureCallback() {
+                // TODO: Something useful here?
+            })
         state = InnerState.CameraInSession(currentState, device, captureSession)
-
         lock.unlock()
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
-    private suspend fun openCameraDevice(cameraSelectionCriteria: CameraSelectionCriteria): CameraDevice {
+    private suspend fun openCameraDevice(cameraId: String): CameraDevice {
         // Use the context to require the camera manager from the system:
         val cameraManager: CameraManager = activity?.baseContext?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        // Select a camera matching the selection criteria:
-        val selectedCamera = selectCamera(cameraSelectionCriteria)
 
         // Open selected camera:
         return suspendCoroutine { continuation ->
             try {
                 cameraManager.openCamera(
-                    selectedCamera.cameraId,
+                    cameraId,
                     executor,
                     object : CameraDevice.StateCallback() {
                         override fun onOpened(cameraDevice: CameraDevice) {
@@ -280,10 +285,7 @@ class CameraImpl: Camera {
     private suspend fun createCameraCaptureSession(device: CameraDevice, targets: Collection<Surface>): CameraCaptureSession {
 
         val outputs = targets.map {
-            OutputConfiguration(it).apply {
-                // The most similar application for a POV is a video call:
-                streamUseCase = CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL.toLong()
-            }
+            OutputConfiguration(it)
         }
 
         return suspendCoroutine { continuation ->
@@ -311,6 +313,7 @@ class CameraImpl: Camera {
             currentState.device.close()
             state = InnerState.CameraStandby(currentState)
         }
+        targets.clear()
         lock.unlock()
     }
 }

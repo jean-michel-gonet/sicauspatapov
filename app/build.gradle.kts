@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.camera.viewfinder)
 
+    implementation(libs.androidx.concurrent.futures)
+
     testImplementation(libs.junit)
     debugImplementation(libs.mockk)
     debugImplementation(libs.androidx.ui.tooling)

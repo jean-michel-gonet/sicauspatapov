@@ -3,21 +3,22 @@ agp = "8.4.2"
 kotlin = "1.9.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.8.2"
+androidxJunit = "1.2.1"
+espressoCore = "3.6.1"
+lifecycleRuntimeKtx = "2.8.3"
 activityCompose = "1.9.0"
 composeBom = "2024.06.00"
 uiTextGoogleFonts = "1.6.8"
-mockkVersion = "1.13.11"
+mockk = "1.13.11"
 cameraViewFinder = "1.4.0-alpha07"
+androidxConcurrent = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-mockk = { group = "io.mockk", name = "mockk", version.ref="mockkVersion" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+mockk = { group = "io.mockk", name = "mockk", version.ref= "mockk" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJunit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
@@ -31,6 +32,8 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-camera-viewfinder = { group = "androidx.camera", name = "camera-viewfinder", version.ref="cameraViewFinder"}
+androidx-concurrent-futures = {group = "androidx.concurrent", name = "concurrent-futures", version.ref = "androidxConcurrent"}
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

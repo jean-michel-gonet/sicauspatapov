@@ -29,9 +29,9 @@ data class CameraSelectionCriteria(
     }
 
     enum class FocalLength(val min: Float, val max: Float) {
-        LARGE(1.0f, 4.0f),
-        MEDIUM(0.5f, 1.0f),
-        SMALL(0.0f, 0.5f);
+        LARGE(2.0f, 100.0f),
+        MEDIUM(0.5f, 1.990f),
+        SMALL(0.0f, 0.499f);
 
         fun matches(x: FloatArray?):Boolean {
             return x?.any {

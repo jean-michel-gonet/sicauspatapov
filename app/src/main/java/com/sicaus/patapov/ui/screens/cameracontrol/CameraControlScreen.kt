@@ -1,10 +1,16 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.graphics.Color
+import android.util.Log
 import android.view.Surface
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.camera.impl.utils.futures.FutureCallback
+import androidx.camera.impl.utils.futures.Futures
+import androidx.camera.viewfinder.CameraViewfinder
+import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,12 +35,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
 import com.sicaus.patapov.services.camera.CameraException
 import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.CameraUserException
 import com.sicaus.patapov.services.camera.NoMatchingCameraException
+import com.sicaus.patapov.services.camera.SelectedCameraDescription
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
@@ -52,6 +60,7 @@ fun Camera2AndButtons(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Camera2Viewer(
+            cameraDescription = uiState.selectedCamera,
             cameraState = uiState.cameraState,
             activateCamera = viewModel::activateCamera,
             modifier = Modifier
@@ -94,11 +103,15 @@ fun ErrorNotification(exception: CameraException?) {
 }
 
 @Composable
-fun Camera2Viewer(cameraState: ServiceState, activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
+fun Camera2Viewer(
+    cameraState: ServiceState,
+    cameraDescription: SelectedCameraDescription?,
+    activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
     if (cameraState.canStart()) {
         WaitingCamera(modifier)
-    } else if (cameraState.isRunning()) {
+    } else if (cameraState.isRunning() && cameraDescription != null) {
         ShowCamera(
+            cameraDescription = cameraDescription,
             activateCamera = activateCamera,
             modifier)
     } else {
@@ -114,18 +127,37 @@ fun WaitingCamera(modifier: Modifier = Modifier) {
         contentDescription = "Camera")
 }
 @Composable
-fun ShowCamera(activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
+fun ShowCamera(
+    cameraDescription: SelectedCameraDescription,
+    activateCamera: (Surface) -> Unit,
+    modifier: Modifier = Modifier) {
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            SurfaceView(context).apply {
+            CameraViewfinder(context).apply {
                 this.setBackgroundColor(Color.GREEN)
                 this.layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT)
-                this.post {
-                    activateCamera(this.holder.surface)
-                }
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT)
+                )
+                val viewfinderSurfaceRequest = ViewfinderSurfaceRequest
+                    .Builder(cameraDescription.size)
+                    .build()
+                val surfaceListenableFuture = this.requestSurfaceAsync(viewfinderSurfaceRequest);
+                Futures.addCallback(surfaceListenableFuture, object : FutureCallback<Surface> {
+                    override fun onFailure(t: Throwable) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onSuccess(result: Surface?) {
+                        if (result != null) {
+                            activateCamera(result);
+                        } else {
+                            Log.e(this.javaClass.simpleName, "No surface on success")
+                        }
+                    }
+                }, ContextCompat.getMainExecutor(context))
             }})
 }
 
