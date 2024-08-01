@@ -7,9 +7,10 @@ import android.util.Size
  */
 data class SelectedCameraDescription (
     val cameraId: String,
-    val size: Size
+    val size: Size,
+    val orientation: Int
 ) {
     override fun toString(): String {
-        return "CameraId: $cameraId - ${size.width}x${size.height} px"
+        return "CameraId: $cameraId - ${size.width}x${size.height} px, $orientation°"
     }
 }

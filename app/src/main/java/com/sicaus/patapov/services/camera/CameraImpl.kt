@@ -179,13 +179,15 @@ class CameraImpl: Camera {
             }
 
             // Filters out cameras not having the expected focal length:
-            val availableFocalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+            val availableFocalLengths = characteristics
+                .get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
             if (!cameraSelectionCriteria.focalLength.matches(availableFocalLengths)) {
                 continue
             }
 
             // Locates the most appropriate resolution:
-            val streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            val streamConfigurationMap = characteristics
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
             val outputSizes = streamConfigurationMap?.getOutputSizes(ImageFormat.JPEG)
             val mostAppropriateOutputSize = outputSizes?.minByOrNull {
                     size ->
@@ -195,10 +197,14 @@ class CameraImpl: Camera {
                 continue
             }
 
+            // Locates the sensor orientation
+            val orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+
             // Take the first camera that matches:
             return SelectedCameraDescription(
                 cameraId = cameraId,
-                size = mostAppropriateOutputSize
+                size = mostAppropriateOutputSize,
+                orientation = orientation
             )
         }
 

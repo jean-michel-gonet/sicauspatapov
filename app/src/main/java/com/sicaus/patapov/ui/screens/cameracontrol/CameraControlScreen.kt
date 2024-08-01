@@ -1,10 +1,9 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.graphics.Color
+import android.util.AttributeSet
 import android.util.Log
 import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.camera.impl.utils.futures.FutureCallback
@@ -36,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.view.size
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
 import com.sicaus.patapov.services.camera.CameraException
@@ -136,15 +136,26 @@ fun ShowCamera(
         factory = { context ->
             CameraViewfinder(context).apply {
                 this.setBackgroundColor(Color.GREEN)
+                val displayRotation = ContextCompat.getDisplayOrDefault(context).rotation;
+                val deviceOrientation = when(displayRotation) {
+                    Surface.ROTATION_0 -> 0
+                    Surface.ROTATION_90 -> 90
+                    Surface.ROTATION_180 -> 180
+                    Surface.ROTATION_270 -> 270
+                    else -> 0
+                }
+
+                val rotation = (cameraDescription.orientation - deviceOrientation * 1 + 360) % 360
+                Log.i("CameraControlScreen", "Rotation is: $rotation")
                 this.layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT)
-                )
+                        100,
+                        100)
+
                 val viewfinderSurfaceRequest = ViewfinderSurfaceRequest
                     .Builder(cameraDescription.size)
+                    .setSourceOrientation(cameraDescription.orientation)
                     .build()
-                val surfaceListenableFuture = this.requestSurfaceAsync(viewfinderSurfaceRequest);
+                val surfaceListenableFuture = this.requestSurfaceAsync(viewfinderSurfaceRequest)
                 Futures.addCallback(surfaceListenableFuture, object : FutureCallback<Surface> {
                     override fun onFailure(t: Throwable) {
                         TODO("Not yet implemented")
@@ -176,7 +187,11 @@ fun NoCamera(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BottomButtons(cameraState: ServiceState, startCamera: () -> Unit, stopCamera: () -> Unit, modifier: Modifier = Modifier) {
+fun BottomButtons(
+    cameraState: ServiceState,
+    startCamera: () -> Unit,
+    stopCamera: () -> Unit,
+    modifier: Modifier = Modifier) {
     Row(modifier = modifier
         .padding(horizontal = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween) {
