@@ -1,15 +1,12 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.graphics.Color
-import android.util.AttributeSet
+import android.graphics.SurfaceTexture
 import android.util.Log
 import android.view.Surface
+import android.view.TextureView
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.camera.impl.utils.futures.FutureCallback
-import androidx.camera.impl.utils.futures.Futures
-import androidx.camera.viewfinder.CameraViewfinder
-import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,8 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.view.size
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sicaus.patapov.R
 import com.sicaus.patapov.services.camera.CameraException
@@ -43,6 +38,7 @@ import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.CameraUserException
 import com.sicaus.patapov.services.camera.NoMatchingCameraException
 import com.sicaus.patapov.services.camera.SelectedCameraDescription
+import com.sicaus.patapov.ui.composables.CameraPreviewSurfaceView
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
@@ -126,50 +122,24 @@ fun WaitingCamera(modifier: Modifier = Modifier) {
         painter = painterResource(id = R.drawable.ic_camera),
         contentDescription = "Camera")
 }
+
 @Composable
 fun ShowCamera(
     cameraDescription: SelectedCameraDescription,
     activateCamera: (Surface) -> Unit,
     modifier: Modifier = Modifier) {
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            CameraViewfinder(context).apply {
-                this.setBackgroundColor(Color.GREEN)
-                val displayRotation = ContextCompat.getDisplayOrDefault(context).rotation;
-                val deviceOrientation = when(displayRotation) {
-                    Surface.ROTATION_0 -> 0
-                    Surface.ROTATION_90 -> 90
-                    Surface.ROTATION_180 -> 180
-                    Surface.ROTATION_270 -> 270
-                    else -> 0
+            CameraPreviewSurfaceView(cameraDescription, context).apply {
+                this.post {
+                    //this.setBackgroundColor(Color.TRANSPARENT)
+                    activateCamera(Surface(this.surfaceTexture))
                 }
-
-                val rotation = (cameraDescription.orientation - deviceOrientation * 1 + 360) % 360
-                Log.i("CameraControlScreen", "Rotation is: $rotation")
-                this.layoutParams = LinearLayout.LayoutParams(
-                        100,
-                        100)
-
-                val viewfinderSurfaceRequest = ViewfinderSurfaceRequest
-                    .Builder(cameraDescription.size)
-                    .setSourceOrientation(cameraDescription.orientation)
-                    .build()
-                val surfaceListenableFuture = this.requestSurfaceAsync(viewfinderSurfaceRequest)
-                Futures.addCallback(surfaceListenableFuture, object : FutureCallback<Surface> {
-                    override fun onFailure(t: Throwable) {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun onSuccess(result: Surface?) {
-                        if (result != null) {
-                            activateCamera(result);
-                        } else {
-                            Log.e(this.javaClass.simpleName, "No surface on success")
-                        }
-                    }
-                }, ContextCompat.getMainExecutor(context))
-            }})
+            }
+        }
+    )
 }
 
 @Composable
