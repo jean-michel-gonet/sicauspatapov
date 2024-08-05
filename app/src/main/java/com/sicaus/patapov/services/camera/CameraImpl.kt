@@ -8,9 +8,11 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
+import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.sicaus.patapov.services.permissions.RequiredPermission
@@ -203,7 +205,7 @@ class CameraImpl: Camera {
             // Take the first camera that matches:
             return SelectedCameraDescription(
                 cameraId = cameraId,
-                size = mostAppropriateOutputSize,
+                sizeInPixels = mostAppropriateOutputSize,
                 orientation = orientation
             )
         }
@@ -295,19 +297,20 @@ class CameraImpl: Camera {
         }
 
         return suspendCoroutine { continuation ->
-            device.createCaptureSession(SessionConfiguration(
-                SessionConfiguration.SESSION_REGULAR, // No need of high FPS.
-                outputs,
-                executor,
-                object : CameraCaptureSession.StateCallback() {
-                    override fun onConfigured(session: CameraCaptureSession) {
-                        continuation.resume(session)
-                    }
-                    override fun onConfigureFailed(session: CameraCaptureSession) {
-                        continuation.resumeWithException(CannotConfigureCameraCaptureSession(device.id))
-                    }
-                })
-            )
+             val sessionConfiguration = SessionConfiguration(
+                 SessionConfiguration.SESSION_REGULAR, // No need of high FPS.
+                 outputs,
+                 executor,
+                 object : CameraCaptureSession.StateCallback() {
+                     override fun onConfigured(session: CameraCaptureSession) {
+                         continuation.resume(session)
+                     }
+                     override fun onConfigureFailed(session: CameraCaptureSession) {
+                         continuation.resumeWithException(CannotConfigureCameraCaptureSession(device.id))
+                     }
+                 })
+
+            device.createCaptureSession(sessionConfiguration)
         }
     }
 

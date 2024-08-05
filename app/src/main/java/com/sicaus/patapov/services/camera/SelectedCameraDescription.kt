@@ -1,16 +1,17 @@
 package com.sicaus.patapov.services.camera
 
 import android.util.Size
+import android.util.SizeF
 
 /**
  * Describes the currently selected camera.
  */
 data class SelectedCameraDescription (
     val cameraId: String,
-    val size: Size,
+    val sizeInPixels: Size,
     val orientation: Int
 ) {
     override fun toString(): String {
-        return "CameraId: $cameraId - ${size.width}x${size.height} px, $orientation°"
+        return "CameraId: $cameraId - ${sizeInPixels.width}x${sizeInPixels.height} px, $orientation°"
     }
 }

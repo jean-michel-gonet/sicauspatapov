@@ -1,12 +1,7 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
-import android.graphics.Color
-import android.graphics.SurfaceTexture
-import android.util.Log
 import android.view.Surface
-import android.view.TextureView
-import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.view.SurfaceView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +33,7 @@ import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.CameraUserException
 import com.sicaus.patapov.services.camera.NoMatchingCameraException
 import com.sicaus.patapov.services.camera.SelectedCameraDescription
-import com.sicaus.patapov.ui.composables.CameraPreviewSurfaceView
+import com.sicaus.patapov.ui.composables.CameraPreviewTextureView
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
@@ -132,10 +127,10 @@ fun ShowCamera(
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            CameraPreviewSurfaceView(cameraDescription, context).apply {
+            CameraPreviewTextureView(cameraDescription, context).apply {
                 this.post {
                     //this.setBackgroundColor(Color.TRANSPARENT)
-                    activateCamera(Surface(this.surfaceTexture))
+                    activateCamera(this.holder.surface)
                 }
             }
         }
