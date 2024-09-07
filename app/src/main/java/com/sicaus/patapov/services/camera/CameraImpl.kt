@@ -8,11 +8,9 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
-import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.sicaus.patapov.services.permissions.RequiredPermission
@@ -32,7 +30,6 @@ class CameraImpl: Camera {
     private var activity: Activity? = null
     private var state: InnerState = InnerState.NoCameraSelected()
     private val lock = ReentrantLock()
-    private val stateChanged = lock.newCondition()
 
     override fun requiredPermissions(): Collection<RequiredPermission> {
         return mutableListOf (
@@ -130,7 +127,7 @@ class CameraImpl: Camera {
         try {
             lock.lock()
             val newState = doSelectCamera(state, cameraSelectionCriteria)
-            state = newState;
+            state = newState
             return newState.selectedCameraDescription
         } finally {
             lock.unlock()
@@ -257,7 +254,7 @@ class CameraImpl: Camera {
         val captureSession = createCameraCaptureSession(device, targets)
         val captureRequestBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
         targets.forEach {
-            captureRequestBuilder.addTarget(it);
+            captureRequestBuilder.addTarget(it)
         }
         captureSession.setSingleRepeatingRequest(
             captureRequestBuilder.build(),

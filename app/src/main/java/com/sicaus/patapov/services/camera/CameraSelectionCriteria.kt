@@ -23,11 +23,6 @@ data class CameraSelectionCriteria(
         }
     }
 
-    enum class MinMax {
-        MIN,
-        MAX
-    }
-
     enum class FocalLength(val min: Float, val max: Float) {
         LARGE(2.0f, 100.0f),
         MEDIUM(0.5f, 1.990f),

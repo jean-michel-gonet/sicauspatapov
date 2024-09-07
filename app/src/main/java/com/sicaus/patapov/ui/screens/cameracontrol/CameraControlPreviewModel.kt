@@ -26,6 +26,10 @@ class CameraControlPreviewModel(private val _uiState: UiState): CameraControlVie
         // do nothing
     }
 
+    override fun deActivateCamera(surface: Surface) {
+        // do nothing
+    }
+
     override fun stopCamera() {
         // do nothing
     }

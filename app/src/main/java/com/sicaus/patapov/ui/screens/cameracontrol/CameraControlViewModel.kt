@@ -1,6 +1,5 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
-import android.util.Log
 import android.view.Surface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,10 +8,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sicaus.patapov.SiCausApplication
 import com.sicaus.patapov.services.camera.Camera
-import com.sicaus.patapov.services.permissions.PermissionProvider
 import com.sicaus.patapov.services.camera.CameraException
 import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.SelectedCameraDescription
+import com.sicaus.patapov.services.permissions.PermissionProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -114,7 +113,7 @@ open class CameraControlViewModel(
     /**
      * UI calls this method to provide a [Surface] to subscribe to the camera.
      */
-    open fun deactivateCamera(surface: Surface) {
+    open fun deActivateCamera(surface: Surface) {
         if (_uiState.value.cameraState == ServiceState.RUNNING) {
             viewModelScope.launch {
                 try {
