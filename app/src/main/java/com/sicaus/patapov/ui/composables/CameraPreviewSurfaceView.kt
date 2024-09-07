@@ -12,7 +12,15 @@ import com.sicaus.patapov.services.camera.SelectedCameraDescription
  * A custom [TextureView], adapted for camera preview.
  */
 @SuppressLint("ViewConstructor") // No need of view constructor, as we're using jetpack.
-class CameraPreviewTextureView(private val cameraDescription: SelectedCameraDescription, context: Context): SurfaceView(context) {
+class CameraPreviewSurfaceView(
+    private val cameraDescription: SelectedCameraDescription,
+    context: Context): SurfaceView(context) {
+
+    /**
+     * Sets the size of the inner surface.
+     * The camera session picks the camera resolution from the size of the surface, so it
+     * is important to match one of the available resolutions.
+     */
     init {
         this.holder.setFixedSize(
             cameraDescription.sizeInPixels.width,
@@ -20,18 +28,8 @@ class CameraPreviewTextureView(private val cameraDescription: SelectedCameraDesc
     }
 
     /**
-     * Recalculates the scale required for the camera output to be displayed on the view without
-     * distortion.
-     * [android.view.View] scales the content so as to cover the whole area,
-     * not concerned by preserving the aspect ratio.
-     * Things to consider in the calculation:
-     * - The camera output
-     *   - The size of the sensor, in mm - its physical size.
-     *   - The size of the output, in pixels
-     * - The view actual size
-     *   - The view size measured by the [onMeasure] method.
-     *   - This method is called when the view need to resize itself - at first display, or
-     *   after a rotation, or after any event that affects its size.
+     * Recalculates the scale required for the camera output to be displayed on the
+     * view without distortion.
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Don't interfere with the normal measure procedure:
@@ -54,11 +52,13 @@ class CameraPreviewTextureView(private val cameraDescription: SelectedCameraDesc
         }
 
         // Camara output aspect and measured view aspect:
-        val cameraOutputAspect = cameraOutputWidth.toFloat() / cameraOutputHeight.toFloat()
-        val measuredAspect = measuredWidth.toFloat() / measuredHeight.toFloat()
+        val cameraOutputAspect =
+            cameraOutputWidth.toFloat() / cameraOutputHeight.toFloat()
+        val measuredAspect =
+            measuredWidth.toFloat() / measuredHeight.toFloat()
 
-        // Surface will be stretched to completely fit the measured area. We want the scale
-        // to do the inverse:
+        // Surface will be stretched to completely fit the measured area.
+        // We want the scale to do the inverse:
         val scaleAspect = cameraOutputAspect / measuredAspect
 
         if (scaleAspect < 1) {

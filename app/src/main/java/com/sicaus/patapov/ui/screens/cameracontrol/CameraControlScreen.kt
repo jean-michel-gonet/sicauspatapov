@@ -1,7 +1,8 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
+import android.graphics.Color
 import android.view.Surface
-import android.view.SurfaceView
+import android.view.SurfaceHolder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,7 @@ import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.CameraUserException
 import com.sicaus.patapov.services.camera.NoMatchingCameraException
 import com.sicaus.patapov.services.camera.SelectedCameraDescription
-import com.sicaus.patapov.ui.composables.CameraPreviewTextureView
+import com.sicaus.patapov.ui.composables.CameraPreviewSurfaceView
 import com.sicaus.patapov.ui.theme.primaryContainerLight
 
 @Composable
@@ -54,6 +55,7 @@ fun Camera2AndButtons(
             cameraDescription = uiState.selectedCamera,
             cameraState = uiState.cameraState,
             activateCamera = viewModel::activateCamera,
+            deactivateCamera = viewModel::deactivateCamera,
             modifier = Modifier
                 .weight(1.0f)
                 .fillMaxWidth())
@@ -97,13 +99,16 @@ fun ErrorNotification(exception: CameraException?) {
 fun Camera2Viewer(
     cameraState: ServiceState,
     cameraDescription: SelectedCameraDescription?,
-    activateCamera: (Surface) -> Unit, modifier: Modifier = Modifier) {
+    activateCamera: (Surface) -> Unit,
+    deactivateCamera: (Surface) -> Unit,
+    modifier: Modifier = Modifier) {
     if (cameraState.canStart()) {
         WaitingCamera(modifier)
     } else if (cameraState.isRunning() && cameraDescription != null) {
         ShowCamera(
             cameraDescription = cameraDescription,
             activateCamera = activateCamera,
+            deactivateCamera = deactivateCamera,
             modifier)
     } else {
         NoCamera(modifier)
@@ -122,15 +127,33 @@ fun WaitingCamera(modifier: Modifier = Modifier) {
 fun ShowCamera(
     cameraDescription: SelectedCameraDescription,
     activateCamera: (Surface) -> Unit,
+    deactivateCamera: (Surface) -> Unit,
     modifier: Modifier = Modifier) {
 
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            CameraPreviewTextureView(cameraDescription, context).apply {
+            CameraPreviewSurfaceView(cameraDescription, context).apply {
+                this.holder.addCallback(object: SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        activateCamera(holder.surface)
+                    }
+
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        width: Int,
+                        height: Int
+                    ) {
+                        // Do nothing?
+                    }
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        deactivateCamera(holder.surface);
+                    }
+                })
                 this.post {
-                    //this.setBackgroundColor(Color.TRANSPARENT)
-                    activateCamera(this.holder.surface)
+                    this.setBackgroundColor(Color.TRANSPARENT)
                 }
             }
         }

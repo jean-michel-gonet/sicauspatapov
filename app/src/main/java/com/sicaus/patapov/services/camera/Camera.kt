@@ -30,6 +30,13 @@ interface Camera: ActivityBound, RequiringPermissions {
     suspend fun subscribe(surface: Surface)
 
     /**
+     * Unsubscribes a surface from the camera stream.
+     * Unsubscribing a surface restarts the camera.
+     * If there are no subscriptors, the camera is stopped.
+     */
+    suspend fun unsubscribe(surface: Surface)
+
+    /**
      * Stops the camera.
      * It is possible to stop the camera from outside the user interface.
      * If the camera didn't start, then this method does nothing.
