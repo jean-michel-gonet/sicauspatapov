@@ -228,6 +228,12 @@ class CameraImpl: Camera {
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override suspend fun unsubscribe(surface: Surface) {
+        targets.remove(surface)
+        restart()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private suspend fun restart() {
         lock.lock()
 
@@ -240,6 +246,11 @@ class CameraImpl: Camera {
         if (currentState is InnerState.CameraInSession) {
             currentState.captureSession.close()
             currentState.device.close()
+        }
+
+        if (targets.isEmpty()) {
+            state = InnerState.CameraStandby(currentState)
+            return
         }
 
         val device = openCameraDevice(currentState.selectedCameraDescription.cameraId)

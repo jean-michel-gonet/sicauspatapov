@@ -1,5 +1,6 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
+import android.util.Log
 import android.view.Surface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -108,6 +109,29 @@ open class CameraControlViewModel(
                 }
             }
         }
+    }
+
+    /**
+     * UI calls this method to provide a [Surface] to subscribe to the camera.
+     */
+    open fun deactivateCamera(surface: Surface) {
+        if (_uiState.value.cameraState == ServiceState.RUNNING) {
+            viewModelScope.launch {
+                try {
+                    camera.unsubscribe(surface)
+                    _uiState.update {
+                        it.copy(cameraState = ServiceState.STARTING_UP)
+                    }
+                } catch (e: CameraException) {
+                    _uiState.update {
+                        it.copy(
+                            cameraState = ServiceState.ERROR,
+                            exception = e)
+                    }
+                }
+            }
+        }
+
     }
 
     open fun stopCamera() {
