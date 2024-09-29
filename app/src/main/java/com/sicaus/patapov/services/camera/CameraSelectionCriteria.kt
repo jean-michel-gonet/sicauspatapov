@@ -11,7 +11,7 @@ import kotlin.math.min
 data class CameraSelectionCriteria(
     val facing: Facing = Facing.BACK,
     val focalLength: FocalLength = FocalLength.MEDIUM,
-    val size: SizeLimit = SizeLimit(Size(2400, 1080))) {
+    val size: SizeLimit = SizeLimit(Size(1000, 1000))) {
 
     enum class Facing(private val id: Int) {
         FRONT(CameraCharacteristics.LENS_FACING_FRONT),

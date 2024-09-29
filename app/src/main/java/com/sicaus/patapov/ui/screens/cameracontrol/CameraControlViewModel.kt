@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sicaus.patapov.SiCausApplication
+import com.sicaus.patapov.services.broadcast.Broadcast
 import com.sicaus.patapov.services.camera.Camera
 import com.sicaus.patapov.services.camera.CameraException
 import com.sicaus.patapov.services.camera.CameraSelectionCriteria
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 
 open class CameraControlViewModel(
     private val camera: Camera,
+    private val broadcastService: Broadcast,
     private val permissionProvider: PermissionProvider
 ): ViewModel() {
 
@@ -30,6 +32,7 @@ open class CameraControlViewModel(
                 val container = application.container
                 CameraControlViewModel(
                     camera = container.camera(),
+                    broadcastService = container.broadcast(),
                     permissionProvider = container.permissionProvider())
             }
         }
@@ -95,7 +98,8 @@ open class CameraControlViewModel(
         if (_uiState.value.cameraState == ServiceState.STARTING_UP) {
             viewModelScope.launch {
                 try {
-                    camera.subscribe(surface)
+                    broadcastService.startPreview(surface)
+                    broadcastService.startBroadcast()
                     _uiState.update {
                         it.copy(cameraState = ServiceState.RUNNING)
                     }
@@ -117,7 +121,8 @@ open class CameraControlViewModel(
         if (_uiState.value.cameraState == ServiceState.RUNNING) {
             viewModelScope.launch {
                 try {
-                    camera.unsubscribe(surface)
+                    broadcastService.stopBroadcast()
+                    broadcastService.stopPreview()
                     _uiState.update {
                         it.copy(cameraState = ServiceState.STARTING_UP)
                     }
