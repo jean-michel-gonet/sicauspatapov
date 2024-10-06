@@ -1,6 +1,5 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
-import android.util.Log
 import android.view.Surface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,11 +7,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.sicaus.patapov.SiCausApplication
+import com.sicaus.patapov.services.broadcast.Broadcast
 import com.sicaus.patapov.services.camera.Camera
-import com.sicaus.patapov.services.permissions.PermissionProvider
 import com.sicaus.patapov.services.camera.CameraException
 import com.sicaus.patapov.services.camera.CameraSelectionCriteria
 import com.sicaus.patapov.services.camera.SelectedCameraDescription
+import com.sicaus.patapov.services.permissions.PermissionProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 open class CameraControlViewModel(
     private val camera: Camera,
+    private val broadcastService: Broadcast,
     private val permissionProvider: PermissionProvider
 ): ViewModel() {
 
@@ -31,6 +32,7 @@ open class CameraControlViewModel(
                 val container = application.container
                 CameraControlViewModel(
                     camera = container.camera(),
+                    broadcastService = container.broadcast(),
                     permissionProvider = container.permissionProvider())
             }
         }
@@ -96,7 +98,8 @@ open class CameraControlViewModel(
         if (_uiState.value.cameraState == ServiceState.STARTING_UP) {
             viewModelScope.launch {
                 try {
-                    camera.subscribe(surface)
+                    broadcastService.startPreview(surface)
+                    broadcastService.startBroadcast()
                     _uiState.update {
                         it.copy(cameraState = ServiceState.RUNNING)
                     }
@@ -114,11 +117,12 @@ open class CameraControlViewModel(
     /**
      * UI calls this method to provide a [Surface] to subscribe to the camera.
      */
-    open fun deactivateCamera(surface: Surface) {
+    open fun deActivateCamera(surface: Surface) {
         if (_uiState.value.cameraState == ServiceState.RUNNING) {
             viewModelScope.launch {
                 try {
-                    camera.unsubscribe(surface)
+                    broadcastService.stopBroadcast()
+                    broadcastService.stopPreview()
                     _uiState.update {
                         it.copy(cameraState = ServiceState.STARTING_UP)
                     }

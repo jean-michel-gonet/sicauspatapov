@@ -55,7 +55,7 @@ fun Camera2AndButtons(
             cameraDescription = uiState.selectedCamera,
             cameraState = uiState.cameraState,
             activateCamera = viewModel::activateCamera,
-            deactivateCamera = viewModel::deactivateCamera,
+            deactivateCamera = viewModel::deActivateCamera,
             modifier = Modifier
                 .weight(1.0f)
                 .fillMaxWidth())

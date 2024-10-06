@@ -65,6 +65,9 @@ dependencies {
 
     implementation(libs.androidx.concurrent.futures)
 
+    implementation(libs.thibaultbee.streampack)
+    implementation(libs.thibaultbee.streampack.srt)
+
     testImplementation(libs.junit)
     debugImplementation(libs.mockk)
     debugImplementation(libs.androidx.ui.tooling)

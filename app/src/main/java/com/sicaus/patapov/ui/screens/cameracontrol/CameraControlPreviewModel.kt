@@ -1,6 +1,7 @@
 package com.sicaus.patapov.ui.screens.cameracontrol
 
 import android.view.Surface
+import com.sicaus.patapov.services.broadcast.Broadcast
 import com.sicaus.patapov.services.camera.Camera
 import com.sicaus.patapov.services.permissions.PermissionProvider
 import io.mockk.mockk
@@ -14,7 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class CameraControlPreviewModel(private val _uiState: UiState): CameraControlViewModel(
     camera = mockk<Camera>(),
-    permissionProvider = mockk<PermissionProvider>()) {
+    broadcastService = mockk<Broadcast>(),
+    permissionProvider = mockk<PermissionProvider>()
+) {
 
     override val uiState get() = MutableStateFlow(_uiState).asStateFlow()
 
@@ -23,6 +26,10 @@ class CameraControlPreviewModel(private val _uiState: UiState): CameraControlVie
     }
 
     override fun activateCamera(surface: Surface) {
+        // do nothing
+    }
+
+    override fun deActivateCamera(surface: Surface) {
         // do nothing
     }
 

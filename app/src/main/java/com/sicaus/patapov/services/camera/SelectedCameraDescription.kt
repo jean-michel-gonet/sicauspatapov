@@ -1,7 +1,6 @@
 package com.sicaus.patapov.services.camera
 
 import android.util.Size
-import android.util.SizeF
 
 /**
  * Describes the currently selected camera.

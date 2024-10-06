@@ -11,7 +11,7 @@ import com.sicaus.patapov.ui.theme.SiCausPataPOVTheme
 
 
 class MainActivity : ComponentActivity() {
-    lateinit var siCausContainer: SiCausContainer
+    private lateinit var siCausContainer: SiCausContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
