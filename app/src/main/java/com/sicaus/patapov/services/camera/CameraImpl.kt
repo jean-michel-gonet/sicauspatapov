@@ -14,6 +14,8 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.sicaus.patapov.services.permissions.RequiredPermission
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.coroutines.resume
@@ -27,9 +29,10 @@ import kotlin.coroutines.suspendCoroutine
 class CameraImpl: Camera {
     private val executor = Executors.newSingleThreadExecutor()
     private val targets: MutableList<Surface> = mutableListOf()
+    private val lock = ReentrantLock()
+
     private var activity: Activity? = null
     private var state: InnerState = InnerState.NoCameraSelected()
-    private val lock = ReentrantLock()
 
     override fun requiredPermissions(): Collection<RequiredPermission> {
         return mutableListOf (
@@ -121,6 +124,57 @@ class CameraImpl: Camera {
         this.activity = null
     }
 
+    override val availableCameras: Flow<List<AvailableCamera>> = flow {
+        emit(findAvailableCameras())
+    }
+
+    private fun findAvailableCameras(): List<AvailableCamera> {
+        val availableCameras: MutableList<AvailableCamera> = mutableListOf()
+
+        // Use the context to require the camera manager from the system:
+        // TODO: Add safeguards against activity going null at any moment
+        val cameraManager: CameraManager = activity?.baseContext?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+        val cameraIdList = cameraManager.cameraIdList
+        for (cameraId in cameraIdList) {
+            val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+
+            // Extracts the lens facing direction:
+            val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)
+                ?: continue
+
+            // Extracts the sensor orientation
+            val orientation = characteristics
+                .get(CameraCharacteristics.SENSOR_ORIENTATION)
+                ?: 0
+
+            // Extracts the focal length:
+            val focalLength = characteristics
+                .get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                ?.first()
+                ?: continue
+
+            // Extracts all available resolutions:
+            val streamConfigurationMap = characteristics
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                ?: continue
+
+            val outputSizes = streamConfigurationMap
+                .getOutputSizes(ImageFormat.JPEG)
+                ?: continue
+
+            // Take the first camera that matches:
+            availableCameras.add(
+                AvailableCamera(
+                    cameraId = cameraId,
+                    facing = CameraSelectionCriteria.Facing.valueOf(lensFacing),
+                    orientation = orientation,
+                    minFocalLength = focalLength,
+                    availableOutputSizes = outputSizes.toList()))
+        }
+
+        return availableCameras
+    }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun selectCamera(cameraSelectionCriteria: CameraSelectionCriteria): SelectedCameraDescription {
@@ -161,6 +215,7 @@ class CameraImpl: Camera {
      * you might assume that the user prefers it as the default.
      * [See camera enumeration](https://developer.android.com/media/camera/camera2/camera-enumeration), by Android</a>
      */
+    @Deprecated("Use [availableCameras] to choose a camera.")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun findCameraAndConfiguration(cameraSelectionCriteria: CameraSelectionCriteria): SelectedCameraDescription {
         // Use the context to require the camera manager from the system:

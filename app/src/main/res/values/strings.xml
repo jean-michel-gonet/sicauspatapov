@@ -6,4 +6,10 @@
     <string name="button_start">Play</string>
     <string name="button_start_camera">Start Camera</string>
     <string name="button_stop_camera">Stop</string>
+    <string name="configuration_camera">Camera</string>
+    <string name="configuration_camera_subtitle">Choose the streaming camera</string>
+    <string name="configuration_network">Network</string>
+    <string name="configuration_network_subtitle">Select target IP, etc.</string>
+    <string name="button_accept">Accept</string>
+    <string name="button_cancel">Cancel</string>
 </resources>

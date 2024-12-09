@@ -6,7 +6,7 @@ import android.os.StrictMode.VmPolicy
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.sicaus.patapov.ui.screens.SiCausMainScreen
+import com.sicaus.patapov.ui.screens.MainScreen
 import com.sicaus.patapov.ui.theme.SiCausPataPOVTheme
 
 
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SiCausPataPOVTheme {
-                SiCausMainScreen()
+                MainScreen()
             }
         }
     }

@@ -27,6 +27,8 @@ open class NoMatchingCameraException(cameraSelectionCriteria: CameraSelectionCri
 
 open class NoCameraSelectedException: CameraUserException("No Camera Selected", "Select a camera before executing this operation")
 
+open class FacingNotSupportedCameraException(unsupportedFacing: Int?): CameraServiceException ("Unsupported facing id: $unsupportedFacing")
+
 open class CannotOpenCameraException: CameraServiceException {
     protected constructor(m: String): super(m)
     protected constructor(m: String, t: Throwable): super(m, t)

@@ -18,6 +18,16 @@ data class CameraSelectionCriteria(
         BACK(CameraCharacteristics.LENS_FACING_BACK),
         EXTERNAL(CameraCharacteristics.LENS_FACING_EXTERNAL);
 
+        companion object {
+            fun valueOf(value: Int): Facing {
+                val facing = Facing.entries.find { f -> f.id == value }
+                if (facing == null) {
+                    throw FacingNotSupportedCameraException(value)
+                }
+                return facing
+            }
+        }
+
         fun matches(xx: Int?): Boolean {
             return xx == id
         }

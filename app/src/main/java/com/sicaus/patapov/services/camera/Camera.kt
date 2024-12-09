@@ -3,11 +3,17 @@ package com.sicaus.patapov.services.camera
 import android.view.Surface
 import com.sicaus.patapov.services.activity.ActivityBound
 import com.sicaus.patapov.services.permissions.RequiringPermissions
+import kotlinx.coroutines.flow.Flow
 
 /**
  * A simplified access to the camera.
  */
 interface Camera: ActivityBound, RequiringPermissions {
+    /**
+     * Provides the list of available cameras.
+     */
+    val availableCameras: Flow<List<AvailableCamera>>
+
     /**
      * Chooses the camera that best fit the selection criteria.
      * Camera description can also be obtained afterwards, by calling [describeSelectedCamera]]
